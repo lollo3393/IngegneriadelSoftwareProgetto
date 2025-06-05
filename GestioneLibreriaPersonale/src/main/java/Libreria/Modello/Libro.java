@@ -10,95 +10,59 @@ public class Libro {
     private StatoDiLettura statoDiLettura;
     private String Recensione; // funziona solo se il libro è LETTO
 
-    public Libro(String autore, String titolo, String ISBN, Genere genere, TipiDiOggetto tipo, int valutazione, StatoDiLettura statoDiLettura, String recensione) {
-        Autore = autore;
-        this.titolo = titolo;
-        this.ISBN = ISBN;
-        this.genere = genere;
-        this.tipo = tipo;
-        this.statoDiLettura = statoDiLettura;
-        if(statoDiLettura!= StatoDiLettura.LETTO){
-            this.Valutazione=0;
-            this.Recensione= null;
-        }
+// questo è un costruttore privato che può essere usato solo dal builder con builder.build
+    private Libro(Builder b) {
+        this.Autore = b.Autore;
+        this.titolo = b.titolo;
+        this.ISBN = b.ISBN;
+        this.genere = b.genere;
+        this.tipo = b.tipo;
+        this.statoDiLettura = b.statoDiLettura;
+        this.Valutazione = b.Valutazione;
+        this.Recensione = b.Recensione;
     }
-
     public String getAutore() {
         return Autore;
     }
 
-    public void setAutore(String autore) {
-        Autore = autore;
-    }
+
 
     public String getTitolo() {
         return titolo;
     }
 
-    public void setTitolo(String titolo) {
-        this.titolo = titolo;
-    }
+
 
     public String getISBN() {
         return ISBN;
     }
 
-    public void setISBN(String ISBN) {
-        this.ISBN = ISBN;
-    }
 
     public Genere getGenere() {
         return genere;
     }
 
-    public void setGenere(Genere genere) {
-        this.genere = genere;
-    }
 
     public TipiDiOggetto getTipo() {
         return tipo;
     }
 
-    public void setTipo(TipiDiOggetto tipo) {
-        this.tipo = tipo;
-    }
 
     public int getValutazione() {
         return Valutazione;
     }
 
-    public void setValutazione(int valutazione) {
-        if(this.statoDiLettura!=StatoDiLettura.LETTO){
-            throw new IllegalStateException("Non si può impostare una valutazione se non si è finito di leggere");
-        }
-        if(valutazione>5 ||valutazione<1){
-            throw new IllegalArgumentException("La valutazione deve essere compresa tra 1 e 5");
-        }
-        this.Valutazione=valutazione;
-    }
 
     public StatoDiLettura getStatoDiLettura() {
         return statoDiLettura;
     }
 
-    public void setStatoDiLettura(StatoDiLettura nuovoStato) {
-        this.statoDiLettura = nuovoStato;
-        if(nuovoStato!=StatoDiLettura.LETTO){
-            this.Valutazione=0;
-            this.Recensione=null;
-        }
-    }
 
     public String getRecensione() {
         return Recensione;
     }
 
-    public void setRecensione(String recensione) {
-        if(this.statoDiLettura!=StatoDiLettura.LETTO){
-            throw new IllegalStateException("Non puoi recensire un libro che non hai letto");
-        }
-        this.Recensione=recensione;
-    }
+
 
     @Override
     public String toString() {
@@ -117,5 +81,107 @@ public class Libro {
         sb.append("");
 
         return sb.toString();
+    }
+    public static class Builder{
+        private String Autore;
+        private String titolo;
+        private String ISBN;
+        private Genere genere;
+        private TipiDiOggetto tipo;
+        private StatoDiLettura statoDiLettura;
+        private int Valutazione = 0;       // default 0
+        private String Recensione = null; //null di default
+
+        //imposta l'autore:
+        public Builder setAutore(String autore){
+            this.Autore=autore;
+            return this;
+        }
+        public Builder setTitolo(String titolo){
+            this.titolo=titolo;
+            return this;
+        }
+        public Builder setISBN(String ISBN){
+            this.ISBN=ISBN;
+            return this;
+        }
+        public Builder setGenere(Genere genere){
+            this.genere=genere;
+            return this;
+        }
+        public Builder setTipo(TipiDiOggetto tipo) {
+            this.tipo = tipo;
+            return this;
+
+        }
+        public Builder setStatoDiLettura(StatoDiLettura stato){
+            this.statoDiLettura=stato;
+            return this;
+        }
+        public Builder setValutazione(int v){
+            this.Valutazione=v;
+            return this;
+        }
+        public Builder setRecensione(String r){
+            this.Recensione=r;
+            return this;
+
+        }
+        public Libro build(){
+            if(Autore==null||Autore.trim().isEmpty()){
+                throw new IllegalArgumentException("Il campo Autore non può essere vuoto");
+            }
+            if (titolo == null || titolo.trim().isEmpty()) {
+                throw new IllegalArgumentException("Il campo Titolo non può essere vuoto.");
+            }
+            if (ISBN == null || ISBN.trim().isEmpty()) {
+                throw new IllegalArgumentException("Il campo ISBN non può essere vuoto.");
+            }
+            if (genere == null) {
+                throw new IllegalArgumentException("Il campo 'Genere' è obbligatorio.");
+            }
+            if (tipo == null) {
+                throw new IllegalArgumentException("Il tipo è obbligatorio");
+            }
+            if (statoDiLettura == null) {
+                throw new IllegalArgumentException("Il campo stato di lettura non può essere vuoto");
+            }
+            if (statoDiLettura != StatoDiLettura.LETTO) {
+                if(Valutazione!=0){
+                    throw new IllegalArgumentException("non puoi assegnare una valutazione se non hai finito di leggere");
+                }
+                if (Recensione != null && !Recensione.trim().isEmpty()) {
+                    throw new IllegalArgumentException("Non puoi inserire una recensione se non hai finito di leggere");
+                }
+                this.Valutazione=0;
+                this.Recensione=null;
+
+
+            }
+            if(statoDiLettura==StatoDiLettura.LETTO){
+                if(Valutazione<1 ||Valutazione>5){
+                    throw new IllegalArgumentException("La valutazione deve essere compresa tra 1 e 5");
+                }
+                if(Recensione!=null && Recensione.trim().isEmpty()){
+                    this.Recensione=null;
+                }
+            }
+            if (statoDiLettura == StatoDiLettura.LETTO) {
+                if (Valutazione < 1 || Valutazione > 5) {
+                    throw new IllegalArgumentException(
+                            "La valutazione deve essere compresa tra uno e 5."
+                    );
+                }
+                if (Recensione == null || Recensione.trim().isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "Il libro va recensito una volta letto ."
+                    );
+                }
+            }
+            this.Autore=Autore.trim();
+            this.titolo=titolo.trim();
+            return new Libro(this);
+
+        }
     }
 }
