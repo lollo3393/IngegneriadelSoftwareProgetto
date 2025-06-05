@@ -5,7 +5,7 @@ public interface Libro {
     void setTitolo(String autore);
 
     String getISBN();
-    String setISBN(String ISBN);
+    void setISBN(String ISBN);
     String getAutore();
     void setAutore(String autore);
     String getGenere();
