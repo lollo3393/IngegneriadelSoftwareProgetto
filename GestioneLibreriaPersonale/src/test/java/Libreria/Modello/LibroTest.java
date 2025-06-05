@@ -29,68 +29,75 @@ public class LibroTest {
         assertNull(l.getRecensione(), "Recensione di default deve essere null");
     }
 
-
     @Test
     public void erroreSeValutazioneNonPermessaQuandoNonLetto() {
-        // Provo a costruire un libro con stato DA_LEGGERE ma con valutazione per cui deve lanciare IllegalArgumentException
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> new Libro.Builder()
-                        .setAutore("Tite Kubo")
-                        .setTitolo("Bleach Vol. 1")
-                        .setISBN("6677889900")
-                        .setGenere(Genere.SHONEN)
-                        .setTipo(TipiDiOggetto.MANGA)
-                        .setStatoDiLettura(StatoDiLettura.DA_LEGGERE)
-                        .setValutazione(3)
-                        .build()
-        );
-        assertTrue(ex.getMessage().toLowerCase().contains("valutazione"),
-                "Il messaggio d'errore dovrebbe segnalare che non è permesso valutare se non è LETTO");
-    }
-    @Test
-    public void nonPermetteValutazioneFuoriRangeSeLetto() {
-        // un valore <1 o >5, quando stato == LETTO, deve fallire
-        for (int voto : new int[]{0, 6, 100}) {
-            IllegalArgumentException ex = assertThrows(
-                    IllegalArgumentException.class,
-                    () -> new Libro.Builder()
-                            .setAutore("Autore")
-                            .setTitolo("Titolo")
-                            .setISBN("1234567890")
-                            .setGenere(Genere.ROMANZO_DI_AVVENTURA)
-                            .setTipo(TipiDiOggetto.LIBRO)
-                            .setStatoDiLettura(StatoDiLettura.LETTO)
-                            .setValutazione(voto)
-                            .setRecensione("Recensione valida")
-                            .build()
-            );
+        // Provo a costruire un libro con stato DA_LEGGERE ma con valutazione,
+        // quindi mi aspetto IllegalArgumentException
+        try {
+            new Libro.Builder()
+                    .setAutore("Tite Kubo")
+                    .setTitolo("Bleach Vol. 1")
+                    .setISBN("6677889900")
+                    .setGenere(Genere.SHONEN)
+                    .setTipo(TipiDiOggetto.MANGA)
+                    .setStatoDiLettura(StatoDiLettura.DA_LEGGERE)
+                    .setValutazione(3)
+                    .build();
+            fail("Mi aspettavo IllegalArgumentException perché non è permesso valutare se non è LETTO");
+        } catch (IllegalArgumentException ex) {
             assertTrue(ex.getMessage().toLowerCase().contains("valutazione"),
-                    "Mi aspetto un errore che menzioni la valutazione");
+                    "Il messaggio d'errore dovrebbe segnalare che non è permesso valutare se non è LETTO");
         }
     }
+
+    @Test
+    public void nonPermetteValutazioneFuoriRangeSeLetto() {
+        // un valore <1 o >5, quando stato == LETTO, deve lanciare IllegalArgumentException
+        int[] valoriInvalidi = {0, 6, 100};
+        for (int voto : valoriInvalidi) {
+            try {
+                new Libro.Builder()
+                        .setAutore("Autore")
+                        .setTitolo("Titolo")
+                        .setISBN("1234567890")
+                        .setGenere(Genere.ROMANZO_DI_AVVENTURA)
+                        .setTipo(TipiDiOggetto.LIBRO)
+                        .setStatoDiLettura(StatoDiLettura.LETTO)
+                        .setValutazione(voto)
+                        .setRecensione("Recensione valida")
+                        .build();
+                fail("Mi aspettavo IllegalArgumentException perché la valutazione " + voto + " non è valida");
+            } catch (IllegalArgumentException ex) {
+                assertTrue(ex.getMessage().toLowerCase().contains("valutazione"),
+                        "Mi aspetto un errore che menzioni la valutazione (voto = " + voto + ")");
+            }
+        }
+    }
+
     @Test
     public void nonPermetteRecensioneVuotaSeLetto() {
         // se stato == LETTO, recensione non può essere null o stringa vuota
-        for (String rec : new String[]{null, "", "   "}) {
-            IllegalArgumentException ex = assertThrows(
-                    IllegalArgumentException.class,
-                    () -> new Libro.Builder()
-                            .setAutore("Autore")
-                            .setTitolo("Titolo")
-                            .setISBN("1234567890")
-                            .setGenere(Genere.ROMANZO_DI_AVVENTURA)
-                            .setTipo(TipiDiOggetto.LIBRO)
-                            .setStatoDiLettura(StatoDiLettura.LETTO)
-                            .setValutazione(4)
-                            .setRecensione(rec)
-                            .build()
-            );
-            assertTrue(ex.getMessage().toLowerCase().contains("recensione"),
-                    "Mi aspetto un errore che menzioni la recensione obbligatoria");
+        String[] recensioniInvalidi = {null, "", "   "};
+        for (String rec : recensioniInvalidi) {
+            try {
+                new Libro.Builder()
+                        .setAutore("Autore")
+                        .setTitolo("Titolo")
+                        .setISBN("1234567890")
+                        .setGenere(Genere.ROMANZO_DI_AVVENTURA)
+                        .setTipo(TipiDiOggetto.LIBRO)
+                        .setStatoDiLettura(StatoDiLettura.LETTO)
+                        .setValutazione(4)
+                        .setRecensione(rec)
+                        .build();
+                fail("Mi aspettavo IllegalArgumentException perché la recensione '" + rec + "' non è valida");
+            } catch (IllegalArgumentException ex) {
+                assertTrue(ex.getMessage().toLowerCase().contains("recensione"),
+                        "Mi aspetto un errore che menzioni la recensione obbligatoria (recensione = '" + rec + "')");
+            }
         }
-
     }
+
     @Test
     public void costruzioneValidaQuandoLettoConValutazioneERecensione() {
         // Testo “positivo”: se fornisco valutazione =3 e recensione valida, il build non lancia eccezione
@@ -102,7 +109,7 @@ public class LibroTest {
                 .setTipo(TipiDiOggetto.LIBRO)
                 .setStatoDiLettura(StatoDiLettura.LETTO)
                 .setValutazione(3)
-                .setRecensione("Considerazioni genetali")
+                .setRecensione("Considerazioni generali")
                 .build();
         // Qui controllo che, una volta costruito, valga la regola:
         int val = l.getValutazione();
@@ -112,7 +119,7 @@ public class LibroTest {
 
     @Test
     public void costruzioneValidaQuandoNonLettoSenzaValutazioneRecensione() {
-        // Se lo stato è non letto o da leggere, provo a creare un libro senza valutazion e recensione
+        // Se lo stato è non letto o da leggere, provo a creare un libro senza valutazione e recensione
         Libro l1 = new Libro.Builder()
                 .setAutore("Italo Calvino")
                 .setTitolo("Le città invisibili")
@@ -138,5 +145,3 @@ public class LibroTest {
         assertNull(l2.getRecensione());
     }
 }
-
-
