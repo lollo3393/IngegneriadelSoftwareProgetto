@@ -162,8 +162,8 @@ public class Libro {
                 if(Valutazione<1 ||Valutazione>5){
                     throw new IllegalArgumentException("La valutazione deve essere compresa tra 1 e 5");
                 }
-                if(Recensione!=null && Recensione.trim().isEmpty()){
-                    this.Recensione=null;
+                if(Recensione==null || Recensione.trim().isEmpty()){
+                    throw  new IllegalArgumentException("La recensione deve essere scritta se hai letto il libro");
                 }
             }
             if (statoDiLettura == StatoDiLettura.LETTO) {
