@@ -44,4 +44,12 @@ public class Libreria {
             throw new IllegalArgumentException("Il tuo ISBN è inesistente nella libreria");
         }
     }
+    public Libro trovaPerIsbn(String isbn) {
+        for (Libro l : libri) {
+            if (l.getISBN().equals(isbn)) {
+                return l;
+            }
+        }
+        throw new IllegalArgumentException("Nessun libro trovato con ISBN = " + isbn);
+    }
 }
