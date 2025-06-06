@@ -1,0 +1,171 @@
+package Libreria.Modello;
+
+import com.sun.tools.javac.Main;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class MainFrame extends JFrame {
+    private final Libreria libreria;
+    private final CommandManager manager;
+    private final JTextField TestoAutore= new JTextField(15);
+    private final JTextField TitoloTesto= new JTextField(15);
+    private final JTextField ISBNTesto= new JTextField(15);
+    private final JComboBox<Genere> generi=new JComboBox<>(Genere.values());
+    private final JComboBox<TipiDiOggetto> tipi= new JComboBox<>(TipiDiOggetto.values());
+    private final JComboBox<StatoDiLettura> stati= new JComboBox<>(StatoDiLettura.values());
+
+    private final JButton Aggiungi= new JButton("AGGIUNGI");
+    private final JButton Rimuovi= new JButton("RIMUOVI");
+    private final JButton undo= new JButton("UNDO");
+    private final DefaultListModel<Libro> listModel= new DefaultListModel<>();
+    private final JList<Libro> ListaLibri=new JList<>(listModel);
+    private final JLabel label= new JLabel(" ");
+
+    public MainFrame(){
+        super("Gestione libreria");
+        this.libreria=Libreria.getInstance();
+        this.manager= new CommandManager();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        JPanel pannelloInput=new JPanel(new GridBagLayout());
+        GridBagConstraints gb= new GridBagConstraints();
+        gb.insets= new Insets(4,4,4,4);
+        gb.fill= GridBagConstraints.HORIZONTAL;
+        gb.gridx=0;
+        gb.gridy=0;
+        pannelloInput.add(new Label("Autore"),gb);
+        gb.gridx=0;
+        gb.gridy=1;
+        pannelloInput.add(TestoAutore,gb);
+
+        gb.gridx = 0; gb.gridy = 1;
+        pannelloInput.add(new JLabel("Titolo:"), gb);
+        gb.gridx = 1; gb.gridy = 1;
+        pannelloInput.add(TitoloTesto, gb);
+
+
+        gb.gridx = 0; gb.gridy = 2;
+        pannelloInput.add(new JLabel("ISBN:"), gb);
+        gb.gridx = 1; gb.gridy = 2;
+        pannelloInput.add(ISBNTesto, gb);
+
+        gb.gridx = 0; gb.gridy = 3;
+        pannelloInput.add(new JLabel("genere:"), gb);
+        gb.gridx = 1; gb.gridy = 3;
+        pannelloInput.add(generi, gb);
+
+        gb.gridx = 0; gb.gridy = 4;
+        pannelloInput.add(new JLabel("tipologia:"), gb);
+        gb.gridx = 1; gb.gridy = 4;
+        pannelloInput.add(tipi, gb);
+
+        gb.gridx = 0; gb.gridy = 5;
+        pannelloInput.add(new JLabel("stato"), gb);
+        gb.gridx = 1; gb.gridy = 5;
+        pannelloInput.add(stati, gb);
+
+        JPanel pulsantiPanel= new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pulsantiPanel.add(Aggiungi);
+        pulsantiPanel.add(Rimuovi);
+        pulsantiPanel.add(undo);
+
+        gb.gridx=0;
+        gb.gridy=6;
+        gb.gridwidth=2;
+        pannelloInput.add(pulsantiPanel,gb);
+        add(pannelloInput,BorderLayout.NORTH);
+
+        JScrollPane scrollPane = new JScrollPane(ListaLibri);
+        add(scrollPane, BorderLayout.CENTER);
+
+        label.setForeground(Color.red);
+        add(label,BorderLayout.SOUTH);
+        inizializzaListners();
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+
+
+    }
+    private void inizializzaListners(){
+        Aggiungi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                label.setText("");//pulisce quello che c'era scritto prima
+                try{
+                    String autore= TestoAutore.getText().trim();
+                    String titolo=TitoloTesto.getText().trim();
+                    String isbn=ISBNTesto.getText().trim();
+                    Genere genere= (Genere) generi.getSelectedItem();
+                    TipiDiOggetto tipo= (TipiDiOggetto) tipi.getSelectedItem();
+                    StatoDiLettura stato= (StatoDiLettura) stati.getSelectedItem();
+                    Libro nuovoLibro= new Libro.Builder().setAutore(autore).setTitolo(titolo).setISBN(isbn).setGenere(genere).setTipo(tipo).setStatoDiLettura(stato).build();
+                    Command cmd= new AggiungiLibroCommand(libreria,nuovoLibro);
+                    manager.eseguiComando(cmd);
+
+                    listModel.addElement(nuovoLibro);
+                    label.setText("Libro aggiunto correttamente");
+                    label.setForeground(Color.green);
+
+                }catch (IllegalArgumentException er){
+                    label.setForeground(Color.red);
+                    label.setText(er.getMessage());
+                }
+
+
+
+            }
+        });
+        Rimuovi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                label.setText("");
+                Libro selezionato= ListaLibri.getSelectedValue();
+                if(selezionato==null){
+                    label.setForeground(Color.red);
+                    label.setText("Inserisci testo da rimuovere");
+                    return;
+                }
+                String isbRimuovere=selezionato.getISBN();
+                try{
+                    Command cmd= new RimuoviLibroCommand(libreria,isbRimuovere);
+                    manager.eseguiComando(cmd);
+                    listModel.removeElement(selezionato);
+                    label.setForeground(Color.green);
+                    label.setText("Libro rimosso correttamente");
+
+                }catch (IllegalArgumentException er){
+                    label.setForeground(Color.red);
+                    label.setText(er.getMessage());
+                }
+            }
+        });
+        undo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                label.setText("");
+                if(!manager.canUndo()){
+                    label.setForeground(Color.red);
+                    label.setText("Nessun comando da annullare");
+                    return;
+                }
+                manager.undo();
+                listModel.clear();
+                for(Libro l: libreria.getTuttiLibri()){
+                    listModel.addElement(l);
+                }
+                label.setForeground(Color.green);
+                label.setText("Operazione annullata");
+
+
+            }
+        });
+    }
+    public static void main(String ... args){
+        SwingUtilities.invokeLater(()->new MainFrame());
+    }
+
+}

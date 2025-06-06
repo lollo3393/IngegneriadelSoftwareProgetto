@@ -25,4 +25,5 @@ public class DemoCommand {
         manager.undo();
         System.out.println("Annullo un altra operazione ovvero l'aggiunta "+ libreria.getTuttiLibri());
     }
+
 }

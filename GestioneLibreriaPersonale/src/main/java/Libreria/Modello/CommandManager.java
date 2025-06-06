@@ -17,4 +17,8 @@ public class CommandManager {
         Command ultimo=storia.pop();
         ultimo.undo();
     }
+    public boolean canUndo() {
+        return !storia.isEmpty();
+    }
+
 }
