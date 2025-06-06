@@ -28,6 +28,7 @@ public class MainFrame extends JFrame {
     private final JButton Aggiungi= new JButton("AGGIUNGI");
     private final JButton Rimuovi= new JButton("RIMUOVI");
     private final JButton undo= new JButton("UNDO");
+    private final JButton modifica = new JButton("MODIFICA");
     private final DefaultListModel<Libro> listModel= new DefaultListModel<>();
     private final JList<Libro> ListaLibri=new JList<>(listModel);
     private final JLabel label= new JLabel(" ");
@@ -92,6 +93,7 @@ public class MainFrame extends JFrame {
         pulsantiPanel.add(Aggiungi);
         pulsantiPanel.add(Rimuovi);
         pulsantiPanel.add(undo);
+        pulsantiPanel.add(modifica);
 
         gb.gridx=0;
         gb.gridy=8;
@@ -211,6 +213,215 @@ public class MainFrame extends JFrame {
                 valutazioneLabel.getParent().repaint();
             }
         });
+        modifica.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                label.setText("");
+                Libro selezionato=ListaLibri.getSelectedValue();
+                if(selezionato==null){
+                    label.setForeground(Color.red);
+                    label.setText("Seleziona prima un libro da modificare");
+                    return;
+                }
+                Libro modificato= mostaPannelloModifica(selezionato);
+                if(modificato==null){
+                    return;
+                }
+                if(!modificato.getISBN().equals(selezionato.getISBN())){
+                    label.setForeground(Color.red);
+                    label.setText("non puoi modificare l'isbn");
+                    return;
+                }
+                try{
+                    Command cmd= new ModficaLibroCommand(libreria,modificato);
+                    manager.eseguiComando(cmd);
+                    listModel.clear();
+                    for(Libro l: libreria.getTuttiLibri()){
+                        listModel.addElement(l);
+                    }
+                    label.setForeground(Color.green);
+                    label.setText("Modificato correttamente");
+
+                }catch (IllegalArgumentException ex){
+                    label.setForeground(Color.red);
+                    label.setText(ex.getMessage());
+                }
+            }
+        });
+
+
+    }
+    private Libro mostaPannelloModifica(Libro originale){
+        JDialog dialog = new JDialog(this, "Modifica Libro", true);
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints gc = new GridBagConstraints();
+        gc.insets = new Insets(4, 4, 4, 4);
+        gc.fill = GridBagConstraints.HORIZONTAL;
+        JTextField txtAutoreMod = new JTextField(originale.getAutore(), 15);
+        JTextField txtTitoloMod = new JTextField(originale.getTitolo(), 15);
+        JTextField txtISBNMod = new JTextField(originale.getISBN(), 15);
+        txtISBNMod.setEditable(false);
+        JComboBox<Genere> comboGenereMod = new JComboBox<>(Genere.values());
+        comboGenereMod.setSelectedItem(originale.getGenere());
+
+        JComboBox<TipiDiOggetto> comboTipoMod = new JComboBox<>(TipiDiOggetto.values());
+        comboTipoMod.setSelectedItem(originale.getTipo());
+
+        JComboBox<StatoDiLettura> comboStatoMod = new JComboBox<>(StatoDiLettura.values());
+        comboStatoMod.setSelectedItem(originale.getStatoDiLettura());
+        JLabel lblValMod = new JLabel("Valutazione:");
+        JComboBox<Integer> comboValMod = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
+        JLabel lblRecMod = new JLabel("Recensione:");
+        JTextArea areaRecMod = new JTextArea(3, 15);
+        JScrollPane scrollRecMod = new JScrollPane(areaRecMod,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        if (originale.getStatoDiLettura() == StatoDiLettura.LETTO) {
+            comboValMod.setSelectedItem(originale.getValutazione());
+            areaRecMod.setText(originale.getRecensione());
+            lblValMod.setVisible(true);
+            comboValMod.setVisible(true);
+            lblRecMod.setVisible(true);
+            scrollRecMod.setVisible(true);
+        } else {
+            lblValMod.setVisible(false);
+            comboValMod.setVisible(false);
+            lblRecMod.setVisible(false);
+            scrollRecMod.setVisible(false);
+        }
+        // RIGA 0: Autore
+        gc.gridx = 0; gc.gridy = 0;
+        dialog.add(new JLabel("Autore:"), gc);
+        gc.gridx = 1;
+        dialog.add(txtAutoreMod, gc);
+
+        // RIGA 1: Titolo
+        gc.gridx = 0; gc.gridy = 1;
+        dialog.add(new JLabel("Titolo:"), gc);
+        gc.gridx = 1;
+        dialog.add(txtTitoloMod, gc);
+
+        // RIGA 2: ISBN (non editabile)
+        gc.gridx = 0; gc.gridy = 2;
+        dialog.add(new JLabel("ISBN:"), gc);
+        gc.gridx = 1;
+        dialog.add(txtISBNMod, gc);
+
+        // RIGA 3: Genere
+        gc.gridx = 0; gc.gridy = 3;
+        dialog.add(new JLabel("Genere:"), gc);
+        gc.gridx = 1;
+        dialog.add(comboGenereMod, gc);
+
+        // RIGA 4: Tipologia
+        gc.gridx = 0; gc.gridy = 4;
+        dialog.add(new JLabel("Tipologia:"), gc);
+        gc.gridx = 1;
+        dialog.add(comboTipoMod, gc);
+
+        // RIGA 5: Stato di lettura
+        gc.gridx = 0; gc.gridy = 5;
+        dialog.add(new JLabel("Stato:"), gc);
+        gc.gridx = 1;
+        dialog.add(comboStatoMod, gc);
+
+        // RIGA 6: Valutazione
+        gc.gridx = 0; gc.gridy = 6;
+        dialog.add(lblValMod, gc);
+        gc.gridx = 1;
+        dialog.add(comboValMod, gc);
+
+        // RIGA 7: Recensione
+        gc.gridx = 0; gc.gridy = 7;
+        dialog.add(lblRecMod, gc);
+        gc.gridx = 1;
+        dialog.add(scrollRecMod, gc);
+
+        // RIGA 8: Pulsanti SALVA e ANNULLA
+        JButton btnSalva = new JButton("SALVA");
+        JButton btnAnnulla = new JButton("ANNULLA");
+        JPanel panelBtn = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panelBtn.add(btnSalva);
+        panelBtn.add(btnAnnulla);
+
+        gc.gridx = 0; gc.gridy = 8;
+        gc.gridwidth = 2;
+        dialog.add(panelBtn, gc);
+
+        // 4) Listener su comboStatoMod per mostrare/nascondere valutazione+recensione
+        comboStatoMod.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                StatoDiLettura s = (StatoDiLettura) comboStatoMod.getSelectedItem();
+                boolean isLetto = (s == StatoDiLettura.LETTO);
+                lblValMod.setVisible(isLetto);
+                comboValMod.setVisible(isLetto);
+                lblRecMod.setVisible(isLetto);
+                scrollRecMod.setVisible(isLetto);
+                dialog.revalidate();
+                dialog.repaint();
+            }
+        });
+
+        // 5) Variabile per “ritornare” il risultato
+        final Libro[] risultato = { null };
+
+        // 6) Listener per “SALVA”
+        btnSalva.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String autoreMod = txtAutoreMod.getText().trim();
+                    String titoloMod = txtTitoloMod.getText().trim();
+                    String isbnMod = txtISBNMod.getText().trim();
+                    Genere genereMod = (Genere) comboGenereMod.getSelectedItem();
+                    TipiDiOggetto tipoMod = (TipiDiOggetto) comboTipoMod.getSelectedItem();
+                    StatoDiLettura statoMod = (StatoDiLettura) comboStatoMod.getSelectedItem();
+
+                    int valMod = 0;
+                    String recMod = null;
+                    if (statoMod == StatoDiLettura.LETTO) {
+                        valMod = (Integer) comboValMod.getSelectedItem();
+                        recMod = areaRecMod.getText().trim();
+                    }
+
+                    // Creo il nuovo Libro con lo stesso ISBN
+                    Libro.Builder builder = new Libro.Builder()
+                            .setAutore(autoreMod)
+                            .setTitolo(titoloMod)
+                            .setISBN(isbnMod)
+                            .setGenere(genereMod)
+                            .setTipo(tipoMod)
+                            .setStatoDiLettura(statoMod);
+                    if (statoMod == StatoDiLettura.LETTO) {
+                        builder.setValutazione(valMod).setRecensione(recMod);
+                    }
+                    Libro updated = builder.build();
+                    risultato[0] = updated;
+                    dialog.dispose();
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(dialog,
+                            ex.getMessage(),
+                            "Errore di validazione",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // 7) Listener per “ANNULLA”
+        btnAnnulla.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                risultato[0] = null;
+                dialog.dispose();
+            }
+        });
+
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+
+        return risultato[0];
     }
     public static void main(String ... args){
         SwingUtilities.invokeLater(()->new MainFrame());

@@ -52,4 +52,21 @@ public class Libreria {
         }
         throw new IllegalArgumentException("Nessun libro trovato con ISBN = " + isbn);
     }
+    public void aggiornaLibro(Libro libroAggiornato) {
+        String isbn = libroAggiornato.getISBN();
+        boolean trovato = false;
+
+        for (int i = 0; i < libri.size(); i++) {
+            if (libri.get(i).getISBN().equals(isbn)) {
+                // Sostituisco la vecchia versione con la nuova
+                libri.set(i, libroAggiornato);
+                trovato = true;
+                break;
+            }
+        }
+
+        if (!trovato) {
+            throw new IllegalArgumentException("Nessun libro con ISBN = " + isbn + " da aggiornare.");
+        }
+    }
 }
