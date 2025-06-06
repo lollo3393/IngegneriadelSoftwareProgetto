@@ -16,6 +16,14 @@ public class MainFrame extends JFrame {
     private final JComboBox<Genere> generi=new JComboBox<>(Genere.values());
     private final JComboBox<TipiDiOggetto> tipi= new JComboBox<>(TipiDiOggetto.values());
     private final JComboBox<StatoDiLettura> stati= new JComboBox<>(StatoDiLettura.values());
+    private final JLabel valutazioneLabel = new JLabel("Valutazione:");
+    private final JComboBox<Integer> valutazioni = new JComboBox<>(new Integer[]{1,2,3,4,5});
+
+    private final JLabel recensioneLabel = new JLabel("Recensione:");
+    private final JTextArea areaRecensione = new JTextArea(3, 15);
+    private final JScrollPane scrollRecensione = new JScrollPane(areaRecensione,
+            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
     private final JButton Aggiungi= new JButton("AGGIUNGI");
     private final JButton Rimuovi= new JButton("RIMUOVI");
@@ -66,6 +74,19 @@ public class MainFrame extends JFrame {
         pannelloInput.add(new JLabel("stato"), gb);
         gb.gridx = 1; gb.gridy = 5;
         pannelloInput.add(stati, gb);
+        gb.gridx = 0; gb.gridy = 6;
+        pannelloInput.add(valutazioneLabel, gb);
+        gb.gridx = 1;
+        pannelloInput.add(valutazioni, gb);
+        valutazioneLabel.setVisible(false);
+        valutazioni.setVisible(false);
+
+        gb.gridx = 0; gb.gridy = 7;
+        pannelloInput.add(recensioneLabel, gb);
+        gb.gridx = 1;
+        pannelloInput.add(scrollRecensione, gb);
+        recensioneLabel.setVisible(false);
+        scrollRecensione.setVisible(false);
 
         JPanel pulsantiPanel= new JPanel(new FlowLayout(FlowLayout.LEFT));
         pulsantiPanel.add(Aggiungi);
@@ -73,7 +94,7 @@ public class MainFrame extends JFrame {
         pulsantiPanel.add(undo);
 
         gb.gridx=0;
-        gb.gridy=6;
+        gb.gridy=8;
         gb.gridwidth=2;
         pannelloInput.add(pulsantiPanel,gb);
         add(pannelloInput,BorderLayout.NORTH);
@@ -102,7 +123,17 @@ public class MainFrame extends JFrame {
                     Genere genere= (Genere) generi.getSelectedItem();
                     TipiDiOggetto tipo= (TipiDiOggetto) tipi.getSelectedItem();
                     StatoDiLettura stato= (StatoDiLettura) stati.getSelectedItem();
-                    Libro nuovoLibro= new Libro.Builder().setAutore(autore).setTitolo(titolo).setISBN(isbn).setGenere(genere).setTipo(tipo).setStatoDiLettura(stato).build();
+                    int valutazione= 0;
+                    String recensione = null;
+                    if(stato== StatoDiLettura.LETTO){
+                        valutazione= (Integer) valutazioni.getSelectedItem();
+                        recensione= areaRecensione.getText().trim();
+                    }
+                    Libro.Builder builder= new Libro.Builder().setAutore(autore).setTitolo(titolo).setISBN(isbn).setGenere(genere).setTipo(tipo).setStatoDiLettura(stato);
+                    if(stato==StatoDiLettura.LETTO){
+                        builder.setValutazione(valutazione).setRecensione(recensione);
+                    }
+                    Libro nuovoLibro = builder.build();
                     Command cmd= new AggiungiLibroCommand(libreria,nuovoLibro);
                     manager.eseguiComando(cmd);
 
@@ -161,6 +192,23 @@ public class MainFrame extends JFrame {
                 label.setText("Operazione annullata");
 
 
+            }
+        });
+        stati.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                StatoDiLettura statoSelezionato = (StatoDiLettura) stati.getSelectedItem();
+                boolean isLetto = (statoSelezionato == StatoDiLettura.LETTO);
+
+                // Se “LETTO”, mostro i campi; altrimenti li nascondo
+                valutazioneLabel.setVisible(isLetto);
+                valutazioni.setVisible(isLetto);
+                recensioneLabel.setVisible(isLetto);
+                scrollRecensione.setVisible(isLetto);
+
+                // Quando cambio visibilità, è buona norma ridisegnare il pannello
+                valutazioneLabel.getParent().revalidate();
+                valutazioneLabel.getParent().repaint();
             }
         });
     }
