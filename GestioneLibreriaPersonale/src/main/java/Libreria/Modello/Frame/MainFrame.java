@@ -1,5 +1,6 @@
-package Libreria.Modello;
+package Libreria.Modello.Frame;
 
+import Libreria.Modello.*;
 import Libreria.Modello.Command.*;
 
 import javax.swing.*;
@@ -118,6 +119,9 @@ public class MainFrame extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(ListaLibri);
         add(scrollPane, BorderLayout.CENTER);
+
+        PannelloRicerca pr= new PannelloRicerca(libreria,listModel);
+       add(pr,BorderLayout.EAST);
 
         label.setForeground(Color.red);
         add(label,BorderLayout.SOUTH);

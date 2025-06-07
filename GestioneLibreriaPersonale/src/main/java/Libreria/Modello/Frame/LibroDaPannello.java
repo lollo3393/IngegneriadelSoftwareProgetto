@@ -1,4 +1,9 @@
-package Libreria.Modello;
+package Libreria.Modello.Frame;
+
+import Libreria.Modello.Genere;
+import Libreria.Modello.Libro;
+import Libreria.Modello.StatoDiLettura;
+import Libreria.Modello.TipiDiOggetto;
 
 import javax.swing.*;
 import java.awt.*;
