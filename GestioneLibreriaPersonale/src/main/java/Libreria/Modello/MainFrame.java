@@ -1,6 +1,6 @@
 package Libreria.Modello;
 
-import com.sun.tools.javac.Main;
+import Libreria.Modello.Command.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,6 +8,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainFrame extends JFrame {
+    private static final Genere[] GENERI_LIBRO = {
+            Genere.SAGGIO,
+            Genere.ROMANZO_DI_AVVENTURA,
+            Genere.ROMANZO_FANTASY,
+            Genere.FANTASCIENTIFICO,
+            Genere.HORROR
+    };
+    private static final Genere[] GENERI_MANGA = {
+            Genere.SHONEN,
+            Genere.SEINEN,
+            Genere.KODOMO,
+            Genere.JOSEI,
+            Genere.SHOJO
+    };
     private final Libreria libreria;
     private final CommandManager manager;
     private final JTextField TestoAutore= new JTextField(15);
@@ -34,6 +48,7 @@ public class MainFrame extends JFrame {
     private final JLabel label= new JLabel(" ");
 
     public MainFrame(){
+
         super("Gestione libreria");
         this.libreria=Libreria.getInstance();
         this.manager= new CommandManager();
@@ -248,6 +263,30 @@ public class MainFrame extends JFrame {
                 }
             }
         });
+        TipiDiOggetto sel = (TipiDiOggetto) tipi.getSelectedItem();
+        Genere[] init;
+        if (sel == TipiDiOggetto.LIBRO) {
+            init = GENERI_LIBRO;
+        } else {
+            init = GENERI_MANGA;
+        }
+        generi.setModel(new DefaultComboBoxModel<Genere>(init));
+
+
+// listener per filtrare i generi quando cambia il tipo
+    tipi.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            TipiDiOggetto selected = (TipiDiOggetto) tipi.getSelectedItem();
+            Genere[] toShow;
+            if (selected == TipiDiOggetto.LIBRO) {
+                toShow = GENERI_LIBRO;
+            } else {
+                toShow = GENERI_MANGA;
+            }
+            generi.setModel(new DefaultComboBoxModel<Genere>(toShow));
+        }
+    });
 
 
     }
@@ -286,6 +325,7 @@ public class MainFrame extends JFrame {
                 dialog.dispose();
             }
         });
+        pannelloModifica.setPreferredSize(new Dimension(500,500));
         dialog.pack();
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);

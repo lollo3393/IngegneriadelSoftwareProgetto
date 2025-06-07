@@ -1,4 +1,4 @@
-package Libreria.Modello;
+package Libreria.Modello.Command;
 
 public interface Command{
     //definisce l'azione che può essere eseguita (se rispetta le condizioni)

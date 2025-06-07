@@ -1,4 +1,4 @@
-package Libreria.Modello;
+package Libreria.Modello.Command;
 
 import java.util.Stack;
 

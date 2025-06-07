@@ -1,5 +1,10 @@
 package Libreria.Modello;
 
+import Libreria.Modello.Command.AggiungiLibroCommand;
+import Libreria.Modello.Command.Command;
+import Libreria.Modello.Command.CommandManager;
+import Libreria.Modello.Command.RimuoviLibroCommand;
+
 public class DemoCommand {
     public static void main (String[] args){
         Libreria libreria= Libreria.getInstance();

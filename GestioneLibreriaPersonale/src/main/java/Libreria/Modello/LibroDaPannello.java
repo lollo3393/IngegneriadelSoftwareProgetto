@@ -6,6 +6,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class LibroDaPannello extends JPanel {
+    private static final Genere[] GENERI_LIBRI = {
+            Genere.SAGGIO,
+            Genere.ROMANZO_DI_AVVENTURA,
+            Genere.ROMANZO_FANTASY,
+            Genere.FANTASCIENTIFICO,
+            Genere.HORROR
+    };
+    private static final Genere[] GENERI_MANGA = {
+            Genere.SHONEN,
+            Genere.SEINEN,
+            Genere.KODOMO,
+            Genere.JOSEI,
+            Genere.SHOJO
+    };
     private final JTextField AutoreTesto = new JTextField(15);
     private final JTextField TitoloTesto = new JTextField(15);
     private final JTextField IsbnTesto = new JTextField(15);
@@ -96,6 +110,25 @@ public class LibroDaPannello extends JPanel {
                 repaint();
             }
         });
+        tipi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TipiDiOggetto selected = (TipiDiOggetto) tipi.getSelectedItem();
+                Genere[] corretto;
+                if (selected == TipiDiOggetto.LIBRO) {
+                    corretto = GENERI_LIBRI;
+                } else {
+                    corretto = GENERI_MANGA;
+                }
+                generi.setModel(new DefaultComboBoxModel<>(corretto));
+            }
+        });
+        {
+            TipiDiOggetto sel = (TipiDiOggetto) tipi.getSelectedItem();
+            Genere[] init = sel == TipiDiOggetto.LIBRO ? GENERI_LIBRI : GENERI_MANGA;
+            generi.setModel(new DefaultComboBoxModel<>(init));
+        }
+
     }
 
     public void popolaDaLibro(Libro l) {

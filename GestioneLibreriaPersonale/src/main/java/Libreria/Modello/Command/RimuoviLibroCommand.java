@@ -1,4 +1,7 @@
-package Libreria.Modello;
+package Libreria.Modello.Command;
+
+import Libreria.Modello.Libreria;
+import Libreria.Modello.Libro;
 
 public class RimuoviLibroCommand implements Command{
     private final Libreria libreria;
