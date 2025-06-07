@@ -16,6 +16,8 @@ public class PannelloRicerca extends JPanel {
     private final JTextField CampoAutore= new JTextField(10);
     private final JTextField CampoTitolo= new JTextField(10);
     private final JTextField CampoIsbn = new JTextField(10);
+    private final JButton reset= new JButton("Ripristina");
+
     private final JComboBox<Genere> generi= new JComboBox<>(Genere.values());
     private final JComboBox<StatoDiLettura> stati= new JComboBox<>(StatoDiLettura.values());
     private final JButton cerca= new JButton("CERCA");
@@ -57,6 +59,10 @@ public class PannelloRicerca extends JPanel {
         gb.gridx=2;
         add(cerca,gb);
 
+        gb.gridx=3;
+        add(reset,gb);
+
+
         cerca.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -84,6 +90,21 @@ public class PannelloRicerca extends JPanel {
                     if(comp.Uguale(l)){
                         listModel.addElement(l);
                     }
+                }
+
+            }
+        });
+        reset.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CampoAutore.setText("");
+                CampoIsbn.setText("");
+                CampoIsbn.setText("");
+                generi.getSelectedIndex();
+                stati.getSelectedItem();
+                listModel.clear();
+                for(Libro l:libreria.getTuttiLibri()){
+                    listModel.addElement(l);
                 }
 
             }
