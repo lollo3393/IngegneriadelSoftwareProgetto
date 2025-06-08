@@ -119,6 +119,8 @@ public class MainFrame extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(ListaLibri);
         add(scrollPane, BorderLayout.CENTER);
+        PannelloOrdinamento po= new PannelloOrdinamento(libreria,listModel);
+        add(po,BorderLayout.WEST);
 
         PannelloRicerca pr= new PannelloRicerca(libreria,listModel);
        add(pr,BorderLayout.EAST);
