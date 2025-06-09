@@ -61,7 +61,7 @@ public class JsonManager {
         fw.close();
     }
 
-    public List<Libro> carica(File file) throws IOException {
+    public static List<Libro> carica(File file) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
         StringBuilder sb = new StringBuilder();
         String line;

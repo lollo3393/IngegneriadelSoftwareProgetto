@@ -2,7 +2,9 @@ package Libreria.Modello.Frame;
 
 import Libreria.Modello.*;
 import Libreria.Modello.Command.*;
+import Libreria.Modello.Command.SalvaEcarica.CaricaDaJson;
 import Libreria.Modello.Command.SalvaEcarica.JsonManager;
+import Libreria.Modello.Command.SalvaEcarica.SalvaSuJson;
 
 import javax.swing.*;
 import java.awt.*;
@@ -305,39 +307,42 @@ public class MainFrame extends JFrame {
     Salva.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            try{
-                File f= new File("libreria.json");
-                JsonManager.salva(libreria.getTuttiLibri(),f);
-                label.setText("salvataggio effettuato");
+            label.setText("");
+            File file = ScegliSalvaFile();
+            if (file == null) return;  // utente ha annullato
+            Command cmd = new SalvaSuJson(
+                    libreria.getTuttiLibri(),
+                    file
+            );
+            try {
+                manager.eseguiComando(cmd);
                 label.setForeground(Color.green);
-
-            }catch (IOException er){
-                label.setText("Errore nel salvataggio"+ er.getMessage());
+                label.setText("Salvataggio JSON avvenuto");
+            } catch (RuntimeException ex) {
                 label.setForeground(Color.red);
+                label.setText(ex.getMessage());
             }
         }
     });
-    Carica.addActionListener(new ActionListener() {
+
+        Carica.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
+            label.setText("");
+            File file = ScegliCaricaFile();
+            if (file == null) return;  // utente ha annullato
+            Command cmd = new CaricaDaJson(
+                    libreria,
+                    listModel,
+                    file
+            );
             try {
-                File f  =new File("libreria.json");
-                List<Libro> caricati= new JsonManager().carica(f);
-                for( Libro l: new ArrayList<Libro>(libreria.getTuttiLibri())){
-                    libreria.rimuoviLibro(l.getISBN());
-                }
-                listModel.clear();
-                for(Libro l: caricati){
-                    libreria.aggiungiLibro(l);
-                    listModel.addElement(l);
-
-                }
+                manager.eseguiComando(cmd);
                 label.setForeground(Color.green);
-                label.setText("Caricamento completato");
-            }catch (Exception er){
-                label.setText("Caricamento fallito : "+er.getMessage());
-                label.setForeground(Color.red
-                );
+                label.setText("Caricamento JSON avvenuto");
+            } catch (RuntimeException ex) {
+                label.setForeground(Color.red);
+                label.setText(ex.getMessage());
             }
         }
     });
@@ -384,6 +389,21 @@ public class MainFrame extends JFrame {
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
         return risultato[0];
+    }
+    private File ScegliSalvaFile() {
+        JFileChooser chooser = new JFileChooser();
+        int result = chooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return chooser.getSelectedFile();
+        }
+        return null;
+    }private File ScegliCaricaFile() {
+        JFileChooser chooser = new JFileChooser();
+        int result = chooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return chooser.getSelectedFile();
+        }
+        return null;
     }
     public static void main(String ... args){
         SwingUtilities.invokeLater(()->new MainFrame());

@@ -66,7 +66,7 @@ public class Libro {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Libro{");
+        final StringBuilder sb = new StringBuilder("{");
         sb.append("Autore='").append(Autore).append('\'');
         sb.append(", titolo='").append(titolo).append('\'');
         sb.append(", ISBN='").append(ISBN).append('\'');
