@@ -1,22 +1,22 @@
 [
-[
-    "autore": "ciao",
-    "titolo": "a",
-    "ISBN": "a",
-    "genere": "SAGGIO",
+  {
+    "autore": "iaw",
+    "titolo": "asjd",
+    "ISBN": "1234",
+    "genere": "ROMANZO_DI_AVVENTURA",
+    "tipo": "LIBRO",
+    "stato": "DA_LEGGERE",
+    "valutazione": 0,
+    "recensione": null
+  },
+  {
+    "autore": "iaw",
+    "titolo": "asjd",
+    "ISBN": "12342",
+    "genere": "ROMANZO_DI_AVVENTURA",
     "tipo": "LIBRO",
     "stato": "LETTO",
-    "valutazione": "5",
-    "recensione": "ad"
-  },
-[
-    "autore": "ciao",
-    "titolo": "aa",
-    "ISBN": "aaa",
-    "genere": "KODOMO",
-    "tipo": "MANGA",
-    "stato": "DA_LEGGERE",
-    "valutazione": "0",
-    "recensione": null
+    "valutazione": 3,
+    "recensione": "122"
   }
 ]
