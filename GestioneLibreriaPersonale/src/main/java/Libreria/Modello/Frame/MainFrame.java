@@ -2,11 +2,16 @@ package Libreria.Modello.Frame;
 
 import Libreria.Modello.*;
 import Libreria.Modello.Command.*;
+import Libreria.Modello.Command.SalvaEcarica.JsonManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainFrame extends JFrame {
     private static final Genere[] GENERI_LIBRO = {
@@ -44,6 +49,8 @@ public class MainFrame extends JFrame {
     private final JButton Rimuovi= new JButton("RIMUOVI");
     private final JButton undo= new JButton("UNDO");
     private final JButton modifica = new JButton("MODIFICA");
+    private final JButton Carica= new JButton("CARICA");
+    private final JButton Salva= new JButton("SALVA");
     private final DefaultListModel<Libro> listModel= new DefaultListModel<>();
     private final JList<Libro> ListaLibri=new JList<>(listModel);
     private final JLabel label= new JLabel(" ");
@@ -110,6 +117,8 @@ public class MainFrame extends JFrame {
         pulsantiPanel.add(Rimuovi);
         pulsantiPanel.add(undo);
         pulsantiPanel.add(modifica);
+        pulsantiPanel.add(Carica);
+        pulsantiPanel.add(Salva);
 
         gb.gridx=0;
         gb.gridy=8;
@@ -291,6 +300,45 @@ public class MainFrame extends JFrame {
                 toShow = GENERI_MANGA;
             }
             generi.setModel(new DefaultComboBoxModel<Genere>(toShow));
+        }
+    });
+    Salva.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try{
+                File f= new File("libreria.json");
+                JsonManager.salva(libreria.getTuttiLibri(),f);
+                label.setText("salvataggio effettuato");
+                label.setForeground(Color.green);
+
+            }catch (IOException er){
+                label.setText("Errore nel salvataggio"+ er.getMessage());
+                label.setForeground(Color.red);
+            }
+        }
+    });
+    Carica.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                File f  =new File("libreria.json");
+                List<Libro> caricati= new JsonManager().carica(f);
+                for( Libro l: new ArrayList<Libro>(libreria.getTuttiLibri())){
+                    libreria.rimuoviLibro(l.getISBN());
+                }
+                listModel.clear();
+                for(Libro l: caricati){
+                    libreria.aggiungiLibro(l);
+                    listModel.addElement(l);
+
+                }
+                label.setForeground(Color.green);
+                label.setText("Caricamento completato");
+            }catch (Exception er){
+                label.setText("Caricamento fallito : "+er.getMessage());
+                label.setForeground(Color.red
+                );
+            }
         }
     });
 

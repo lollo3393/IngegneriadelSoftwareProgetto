@@ -1,0 +1,22 @@
+[
+[
+    "autore": "ciao",
+    "titolo": "a",
+    "ISBN": "a",
+    "genere": "SAGGIO",
+    "tipo": "LIBRO",
+    "stato": "LETTO",
+    "valutazione": "5",
+    "recensione": "ad"
+  },
+[
+    "autore": "ciao",
+    "titolo": "aa",
+    "ISBN": "aaa",
+    "genere": "KODOMO",
+    "tipo": "MANGA",
+    "stato": "DA_LEGGERE",
+    "valutazione": "0",
+    "recensione": null
+  }
+]
