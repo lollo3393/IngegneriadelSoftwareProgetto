@@ -4,7 +4,7 @@ import Libreria.Modello.Genere;
 import Libreria.Modello.Libreria;
 import Libreria.Modello.Libro;
 import Libreria.Modello.Ricerca.*;
-import Libreria.Modello.StatoDiLettura;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +19,7 @@ public class PannelloRicerca extends JPanel {
     private final JButton reset= new JButton("Ripristina");
 
     private final JComboBox<Genere> generi= new JComboBox<>(Genere.values());
-    private final JComboBox<StatoDiLettura> stati= new JComboBox<>(StatoDiLettura.values());
+
     private final JButton cerca= new JButton("CERCA");
 
     public PannelloRicerca(final Libreria libreria, final DefaultListModel<Libro> listModel){
@@ -51,11 +51,10 @@ public class PannelloRicerca extends JPanel {
         add(generi,gb);
 
         //riga 3
-        gb.gridx=0;
+     
         gb.gridy=2;
-        add(new Label("Stato: "),gb);
-        gb.gridx=1;
-        add(stati,gb);
+
+
         gb.gridx=2;
         add(cerca,gb);
 
@@ -70,7 +69,7 @@ public class PannelloRicerca extends JPanel {
                 String tit= CampoTitolo.getText().trim();
                 String isbn= CampoIsbn.getText().trim();
                 Genere gen = (Genere) generi.getSelectedItem();
-                StatoDiLettura stato= (StatoDiLettura) stati.getSelectedItem();
+
 
                 ArrayList<LibroFiltro> filtri= new ArrayList<>();
                 if(!aut.isEmpty())
@@ -81,8 +80,6 @@ public class PannelloRicerca extends JPanel {
                     filtri.add(new IsbnFiltro(isbn));
                 if(gen!= null)
                     filtri.add(new GenereFiltro(gen));
-                if(stato!=null)
-                    filtri.add(new StatoFiltro(stato));
                 FiltroComposite comp= new FiltroComposite(filtri);
 
                 listModel.clear();
@@ -101,7 +98,6 @@ public class PannelloRicerca extends JPanel {
                 CampoIsbn.setText("");
                 CampoIsbn.setText("");
                 generi.getSelectedIndex();
-                stati.getSelectedItem();
                 listModel.clear();
                 for(Libro l:libreria.getTuttiLibri()){
                     listModel.addElement(l);
